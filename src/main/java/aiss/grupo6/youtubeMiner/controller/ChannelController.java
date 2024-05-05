@@ -4,20 +4,24 @@ import aiss.grupo6.youtubeMiner.database.VMCaption;
 import aiss.grupo6.youtubeMiner.database.VMChannel;
 import aiss.grupo6.youtubeMiner.database.VMComment;
 import aiss.grupo6.youtubeMiner.database.VMVideo;
+import aiss.grupo6.youtubeMiner.exception.ChannelNotFoundException;
+import aiss.grupo6.youtubeMiner.exception.InternalErrorException;
 import aiss.grupo6.youtubeMiner.repository.ChannelRepository;
 import aiss.grupo6.youtubeMiner.service.CaptionService;
 import aiss.grupo6.youtubeMiner.service.ChannelService;
 import aiss.grupo6.youtubeMiner.service.CommentService;
 import aiss.grupo6.youtubeMiner.service.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/youtubeMiner")
+@RequestMapping("/youtubeminer")
 public class ChannelController {
 
     @Autowired
@@ -36,11 +40,15 @@ public class ChannelController {
     @Autowired
     private CommentService commentService;
 
-    //TODO: meter los querys
+    @Value( "${message.channelNotFound}" )
+    private String channelError;
 
-    //GET http://localhost:8082/youtubeMiner/{id}
+    @Value( "${message.internalError}" )
+    private String internalError;
+
+    //GET http://localhost:8082/youtubeminer/{id}
     @GetMapping("/{id}")
-    public VMChannel findChannel(@PathVariable String id, @RequestParam(required = false) Integer maxVideos, @RequestParam(required = false) Integer maxComments) throws RestClientException{
+    public VMChannel findChannel(@PathVariable String id, @RequestParam(required = false) Integer maxVideos, @RequestParam(required = false) Integer maxComments) throws Exception{
         try {
             VMChannel result = this.channelService.findChannelById(id);
             List<VMVideo> videosCanal = this.videoService.indexVideosById(id, maxVideos);
@@ -54,16 +62,24 @@ public class ChannelController {
 
             result.setVideos(videosCanal);
             return result;
-        }catch(RestClientException e) {
-            System.out.println("Fallo cazado: " + e);
-            throw e;
+        }   catch(HttpClientErrorException e) {
+            if(e.getStatusCode().equals(HttpStatus.NOT_FOUND)){
+                throw new ChannelNotFoundException(channelError);
+            }else{
+                throw new InternalErrorException(internalError);
+            }
+
+        } catch (NullPointerException e) {
+            throw new ChannelNotFoundException(channelError);
+        } catch (RuntimeException e) {
+            throw new InternalErrorException(internalError);
         }
     }
 
-    //POST http://localhost:8082/youtubeMiner/{id}
+    //POST http://localhost:8082/youtubeminer/{id}
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{id}")
-    public VMChannel createChannel(@PathVariable String id, @RequestParam(required = false) Integer maxVideos, @RequestParam(required = false) Integer maxComments) throws RestClientException{
+    public VMChannel createChannel(@PathVariable String id, @RequestParam(required = false) Integer maxVideos, @RequestParam(required = false) Integer maxComments) throws Exception{
         VMChannel canal = findChannel(id, maxVideos, maxComments);
         canal = channelRepository.save(canal);
         return canal;
