@@ -29,7 +29,7 @@ public class VideoService {
         List<VMVideo> result = new ArrayList<>();
         maxVideos = maxVideos == null? 10: maxVideos;
 
-        String uri = path + "/search?key=" + token + "&channelId=" + idChannel + "&part=snippet&maxResults=" + maxVideos;
+        String uri = path + "/search?key=" + token + "&channelId=" + idChannel + "&part=snippet&type=video&maxResults=" + maxVideos;
 
         ResponseEntity<VideoItem> response = restTemplate.exchange(uri, HttpMethod.GET, null, VideoItem.class);
 
