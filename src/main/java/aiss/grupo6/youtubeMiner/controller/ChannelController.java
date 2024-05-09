@@ -87,9 +87,9 @@ public class ChannelController {
             result.setVideos(videosCanal);
             return result;
         }   catch(HttpClientErrorException e) {
-            if(e.getStatusCode().equals(HttpStatus.NOT_FOUND)){
+            if(e.getStatusCode().equals(HttpStatus.NOT_FOUND) || e.getStatusCode().equals(HttpStatus.BAD_REQUEST)){
                 throw new ChannelNotFoundException(channelError);
-            }else{
+            } else{
                 throw new InternalErrorException(internalError);
             }
 

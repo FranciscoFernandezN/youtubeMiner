@@ -33,7 +33,7 @@ public class CommentService {
     @Autowired
     RestTemplate restTemplate;
 
-    public List<VMComment> indexCommentsByVideoId(String idVideo, Integer maxComments) throws RestClientException, InternalErrorException {
+    public List<VMComment> indexCommentsByVideoId(String idVideo, Integer maxComments) throws RestClientException {
         List<VMComment> result = new ArrayList<>();
         maxComments = maxComments == null? 10: maxComments;
 
@@ -48,8 +48,6 @@ public class CommentService {
         }   catch(HttpClientErrorException e) {
             if (e.getStatusCode().equals(HttpStatus.FORBIDDEN)) {
                 result = new ArrayList<>();
-            } else {
-                throw new InternalErrorException(internalError);
             }
         }
 
