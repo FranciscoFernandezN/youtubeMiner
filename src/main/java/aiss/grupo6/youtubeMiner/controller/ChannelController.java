@@ -6,7 +6,6 @@ import aiss.grupo6.youtubeMiner.database.VMComment;
 import aiss.grupo6.youtubeMiner.database.VMVideo;
 import aiss.grupo6.youtubeMiner.exception.ChannelNotFoundException;
 import aiss.grupo6.youtubeMiner.exception.InternalErrorException;
-import aiss.grupo6.youtubeMiner.repository.ChannelRepository;
 import aiss.grupo6.youtubeMiner.service.CaptionService;
 import aiss.grupo6.youtubeMiner.service.ChannelService;
 import aiss.grupo6.youtubeMiner.service.CommentService;
